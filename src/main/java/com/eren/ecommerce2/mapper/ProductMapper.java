@@ -5,20 +5,21 @@ import com.eren.ecommerce2.model.Product;
 
 
 public class ProductMapper {
-    public static toEntity(ProductRequest productRequest) {
+    public static Product toEntity(ProductRequest request) {
         Product product = new Product();
-        product.setName(request.getName());
-        product.setDescription(request.getDescription());
-        product.setPrice(request.getPrice());
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
         return product;
     }
 
-    public static ProductResponse toDto(Product product) {
-        ProductResponse productResponse = new ProductResponse();
-        productResponse.setId(product.getId());
-        productResponse.setName(product.getName());
-        productResponse.setDescription(product.getDescription());
-        productResponse.setPrice(product.getPrice());
-        return productResponse;
+    public static ProductResponse toResponse(Product product) {
+        return new ProductResponse(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getPrice(),
+                product.getStock()
+        );
     }
 }
