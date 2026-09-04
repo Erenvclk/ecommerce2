@@ -18,4 +18,5 @@ public class entity {
     private String name;
     private BigDecimal price;
     private String description;
+    private int stock;
 }
