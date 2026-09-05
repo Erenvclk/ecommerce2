@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.eren.ecommerce2.dto.ProductRequest;
 import com.eren.ecommerce2.dto.ProductResponse;
+import com.eren.ecommerce2.exception.ProductNotFoundException;
 import com.eren.ecommerce2.mapper.ProductMapper;
 import com.eren.ecommerce2.model.Product;
 import com.eren.ecommerce2.repository.ProductRepository;
@@ -38,10 +39,10 @@ public class ProductService {
                 .toList();
     }
 // id ye göre productları çekip product responsa atıyorsun
-
+// 
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         return ProductMapper.toResponse(product);
     }
