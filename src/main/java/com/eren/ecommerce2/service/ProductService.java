@@ -26,11 +26,11 @@ public class ProductService {
 
         return ProductMapper.toResponse(savedProduct);
     }
- // tolistin çıktısı prodcut response listesi olucak
- //product repositorsi product entitylerine bağlı
-// product ın tüm fieldlarını al -> productrepositort.finall() yapıyor bunu
-// hepsını productmapper da ki to response ile çevir
-// çevirilien product repspnse listesinde
+    // tolistin çıktısı prodcut response listesi olucak
+    // product repositorsi product entitylerine bağlı
+    // product ın tüm fieldlarını al -> productrepositort.finall() yapıyor bunu
+    // hepsını productmapper da ki to response ile çevir
+    // çevirilien product repspnse listesinde
 
     public List<ProductResponse> getAllProducts() {
         return productRepository.findAll()
@@ -38,12 +38,41 @@ public class ProductService {
                 .map(ProductMapper::toResponse)
                 .toList();
     }
-// id ye göre productları çekip product responsa atıyorsun
-// 
+
+    // id ye göre productları çekip product responsa atıyorsun
+    //
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
         return ProductMapper.toResponse(product);
+    }
+    // var olan ürünü bul
+    // yenı değerleri üstüne yaz
+    // dt ue kaydet
+    // kayıtlı urunu response cevır dpn
+
+    public ProductResponse updateProduct(Long id, ProductRequest request) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        product.setName(request.name());
+        product.setDescription(request.description());
+        product.setPrice(request.price());
+        product.setStock(request.stock());
+
+        Product updatedProduct = productRepository.save(product);
+
+        return ProductMapper.toResponse(updatedProduct);
+    }
+    // return etmeyen fonk -> void fonk
+    // static -> tüm projede geçerli, 
+    public void deleteProduct(Long id) {
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        productRepository.delete(product);
     }
 }
