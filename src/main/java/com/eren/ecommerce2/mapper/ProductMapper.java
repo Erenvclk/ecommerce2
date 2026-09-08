@@ -21,7 +21,30 @@ public class ProductMapper {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
-                product.getStock()
+                product.getStock(),
+                //bunun boyle olmasının sebebi : 
+                /* 
+                ProductResponse nesnesinin parametre türü product. 
+                biz de product içinde 
+                    private category category yazdık
+                    yanı product içinde category nesnesi var.
+
+                    product.getCategory ile once 
+                    product içindeki category nesnesine 
+                    sonra onun içindeki fieldlara erişiyoruz.
+
+
+                */
+
+                    /*
+                    burada direkt 
+                    Category category = new Category 
+                     de diyebilirdik. 
+                     ama prdouct içinden yapmanın daha mantıklı olgunu soyluyor ai
+                    */
+                product.getCategory().getId(),
+                product.getCategory().getName()
+                
         );
     }
 }

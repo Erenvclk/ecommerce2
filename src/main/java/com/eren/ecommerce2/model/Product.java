@@ -9,12 +9,12 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @NoArgsConstructor
-//@AllArgsConstructor
+// @AllArgsConstructor
 public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;  
+    private Long id;
 
     private String name;
 
@@ -23,4 +23,8 @@ public class Product {
     private BigDecimal price;
 
     private Integer stock;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

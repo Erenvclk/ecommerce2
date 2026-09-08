@@ -9,6 +9,8 @@ import com.eren.ecommerce2.mapper.ProductMapper;
 import com.eren.ecommerce2.model.Product;
 import com.eren.ecommerce2.repository.ProductRepository;
 
+import com.eren.ecommerce2.model.Category;
+
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
@@ -17,10 +19,15 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryService categoryService;
 
     public ProductResponse createProduct(ProductRequest request) {
 
+        Category category = categoryService.getCategoryById(request.categoryId());
+
         Product product = ProductMapper.toEntity(request);
+
+        product.setCategory(category);
 
         Product savedProduct = productRepository.save(product);
 
@@ -66,8 +73,9 @@ public class ProductService {
 
         return ProductMapper.toResponse(updatedProduct);
     }
+
     // return etmeyen fonk -> void fonk
-    // static -> tüm projede geçerli, 
+    // static -> tüm projede geçerli,
     public void deleteProduct(Long id) {
 
         Product product = productRepository.findById(id)

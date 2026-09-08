@@ -17,7 +17,10 @@ public record ProductRequest(
 
     @NotNull
     @Min(0)
-    Integer stock
+    Integer stock,
+
+    
+    Long categoryId
 ) {
     // anotasyonların calısması için controllara da yazmak lazım
     
