@@ -7,6 +7,7 @@ import com.eren.ecommerce2.dto.ProductResponse;
 import com.eren.ecommerce2.exception.ProductNotFoundException;
 import com.eren.ecommerce2.mapper.ProductMapper;
 import com.eren.ecommerce2.model.Product;
+import com.eren.ecommerce2.repository.CategoryRepository;
 import com.eren.ecommerce2.repository.ProductRepository;
 
 import com.eren.ecommerce2.model.Category;
@@ -19,11 +20,13 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
 
     public ProductResponse createProduct(ProductRequest request) {
 
-        Category category = categoryService.getCategoryById(request.categoryId());
+        Category category = categoryRepository
+                .findById(request.categoryId())
+                .orElseThrow();
 
         Product product = ProductMapper.toEntity(request);
 
