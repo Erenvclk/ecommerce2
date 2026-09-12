@@ -9,21 +9,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cart-items")
+@RequestMapping("/carts")
 @RequiredArgsConstructor
 public class CartItemController {
 
     private final CartItemService cartItemService;
 
-    // PSEUDOCODE:
-    // HTTP body'den cartId, productId ve quantity al.
-    // Bunları CartItemRequest nesnesine çevir.
-    // Service'teki addToCart işlemini çalıştır.
-    // Dönen CartItemResponse'u client'a gönder.
-    @PostMapping
+    @PostMapping("/{cartId}/items")
     public CartItemResponse addToCart(
+            @PathVariable Long cartId,
             @RequestBody CartItemRequest request) {
 
-        return cartItemService.addToCart(request);
+        return cartItemService.addToCart(cartId, request);
     }
 }

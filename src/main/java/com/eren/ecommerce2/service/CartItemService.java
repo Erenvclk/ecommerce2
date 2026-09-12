@@ -27,13 +27,13 @@ public class CartItemService {
     // request.productId() ile gerçek Product nesnesini bulmak için lazım.
     private final ProductRepository productRepository;
 
-    public CartItemResponse addToCart(CartItemRequest request) {
-
+    public CartItemResponse addToCart(long cartId,CartItemRequest request) {
+        
         // 1. PSEUDOCODE:
         // "Hangi sepete ürün ekliyoruz?"
         // Request'ten gelen cartId ile DB'deki gerçek Cart nesnesini buluyoruz.
         Cart cart = cartRepository
-                .findById(request.cartId())
+                .findById(cartId)
                 .orElseThrow();
 
         // 2. PSEUDOCODE:

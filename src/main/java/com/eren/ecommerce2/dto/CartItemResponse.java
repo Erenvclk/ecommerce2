@@ -7,7 +7,7 @@ public record CartItemResponse(
 
     long cartId, // cartitemın ıcınde cartıd- productıd- ve quantity var
 
-    long porductId,
+    long productId,
 
     String productName, 
 
