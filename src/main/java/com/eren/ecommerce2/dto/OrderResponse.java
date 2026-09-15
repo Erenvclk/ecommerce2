@@ -5,9 +5,11 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.eren.ecommerce2.model.OrderStatus;
+
 public record OrderResponse(
         Long id,
-        String status,
+        OrderStatus status,
         LocalDateTime createdAt,
         List<OrderItemResponse> items,
         BigDecimal totalPrice) {

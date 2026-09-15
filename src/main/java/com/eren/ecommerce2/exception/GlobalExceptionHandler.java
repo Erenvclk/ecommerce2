@@ -49,4 +49,31 @@ public class GlobalExceptionHandler {
                                 .badRequest()
                                 .body(exception.getMessage());
         }
+
+        @ExceptionHandler(InvalidOrderStatusTransitionException.class)
+        public ResponseEntity<String> handleInvalidOrderStatusTransition(
+                        InvalidOrderStatusTransitionException exception) {
+
+                return ResponseEntity
+                                .badRequest()
+                                .body(exception.getMessage());
+        }
+
+        @ExceptionHandler(OrderNotFoundException.class)
+        public ResponseEntity<String> handleOrderNotFound(
+                        OrderNotFoundException exception) {
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(exception.getMessage());
+        }
+
+        @ExceptionHandler(EmptyCartException.class)
+        public ResponseEntity<String> handleEmptyCart(
+                        EmptyCartException exception) {
+
+                return ResponseEntity
+                                .badRequest()
+                                .body(exception.getMessage());
+        }
 }

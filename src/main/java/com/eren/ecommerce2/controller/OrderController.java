@@ -1,12 +1,18 @@
 package com.eren.ecommerce2.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eren.ecommerce2.dto.OrderResponse;
+import com.eren.ecommerce2.dto.UpdateOrderStatusRequest;
 import com.eren.ecommerce2.service.OrderService;
+
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 
@@ -71,5 +77,28 @@ public class OrderController {
         // --------------------------------------------
 
         return orderService.createOrder(cartId);
+    }
+
+    @GetMapping("/{orderId}")
+    public OrderResponse getOrder(
+            @PathVariable Long orderId) {
+
+        return orderService.getOrder(orderId);
+    }
+
+    @PatchMapping("/{orderId}/status")
+    public OrderResponse updateStatus(
+            @PathVariable Long orderId,
+            @RequestBody UpdateOrderStatusRequest request) {
+
+        return orderService.updateStatus(
+                orderId,
+                request);
+    }
+
+    @GetMapping
+    public List<OrderResponse> getAllOrders() {
+
+        return orderService.getAllOrders();
     }
 }
