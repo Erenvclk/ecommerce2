@@ -2,6 +2,7 @@
 
 package com.eren.ecommerce2.controller;
 
+import com.eren.ecommerce2.dto.CartResponse;
 import com.eren.ecommerce2.model.Cart;
 import com.eren.ecommerce2.service.CartService;
 import lombok.RequiredArgsConstructor;
@@ -19,4 +20,13 @@ public class CartController {
 
         return cartService.createCart();
     }
+
+    @GetMapping("/{cartId}")
+    public CartResponse getCart(
+            @PathVariable Long cartId) {
+
+        return cartService.getCart(cartId);
+    }
+
+    
 }

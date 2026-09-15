@@ -13,9 +13,9 @@ public record CartItemResponse(
 
     Integer quantity,
 
-    BigDecimal price
+    BigDecimal price,
 
-     
+    BigDecimal totalPrice
 ) {
     
 }

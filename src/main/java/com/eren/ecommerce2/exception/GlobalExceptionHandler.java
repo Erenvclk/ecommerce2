@@ -15,28 +15,38 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class) // sadece bu hata türünü yakala
-    public ResponseEntity<String> handleProductNotFound(
-            ProductNotFoundException exception) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)// htpp status = 404
-                .body(exception.getMessage());// yazdıgımız hata mesajı
-    }
-    // @ valid bir isterği reddettiğinde springden gelen hataları json donucek
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationErrors(
-            MethodArgumentNotValidException exception) {
+        @ExceptionHandler(ProductNotFoundException.class) // sadece bu hata türünü yakala
+        public ResponseEntity<String> handleProductNotFound(
+                        ProductNotFoundException exception) {
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)// htpp status = 404
+                                .body(exception.getMessage());// yazdıgımız hata mesajı
+        }
 
-        Map<String, String> errors = new HashMap<>();
+        // @ valid bir isterği reddettiğinde springden gelen hataları json donucek
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, String>> handleValidationErrors(
+                        MethodArgumentNotValidException exception) {
 
-        exception.getBindingResult()
-                .getFieldErrors()
-                .forEach(error -> errors.put(
-                        error.getField(),
-                        error.getDefaultMessage()));
+                Map<String, String> errors = new HashMap<>();
 
-        return ResponseEntity
-                .badRequest()
-                .body(errors);
-    }
+                exception.getBindingResult()
+                                .getFieldErrors()
+                                .forEach(error -> errors.put(
+                                                error.getField(),
+                                                error.getDefaultMessage()));
+
+                return ResponseEntity
+                                .badRequest()
+                                .body(errors);
+        }
+
+        @ExceptionHandler(StockExceededException.class)
+        public ResponseEntity<String> handleStockExceeded(
+                        StockExceededException exception) {
+
+                return ResponseEntity
+                                .badRequest()
+                                .body(exception.getMessage());
+        }
 }

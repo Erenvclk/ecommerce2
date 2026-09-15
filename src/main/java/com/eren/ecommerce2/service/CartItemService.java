@@ -1,9 +1,13 @@
 package com.eren.ecommerce2.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.eren.ecommerce2.dto.CartItemRequest;
 import com.eren.ecommerce2.dto.CartItemResponse;
+import com.eren.ecommerce2.dto.UpdateCartItemRequest;
+import com.eren.ecommerce2.exception.StockExceededException;
 import com.eren.ecommerce2.mapper.CartItemMapper;
 import com.eren.ecommerce2.model.Cart;
 import com.eren.ecommerce2.model.CartItem;
@@ -18,65 +22,130 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CartItemService {
 
-    // CartItem'ı en sonda DB'ye kaydetmek için lazım.
     private final CartItemRepository cartItemRepository;
-
-    // request.cartId() ile gerçek Cart nesnesini bulmak için lazım.
     private final CartRepository cartRepository;
-
-    // request.productId() ile gerçek Product nesnesini bulmak için lazım.
     private final ProductRepository productRepository;
 
-    public CartItemResponse addToCart(long cartId,CartItemRequest request) {
-        
-        // 1. PSEUDOCODE:
-        // "Hangi sepete ürün ekliyoruz?"
-        // Request'ten gelen cartId ile DB'deki gerçek Cart nesnesini buluyoruz.
+    public CartItemResponse addToCart(
+            Long cartId,
+            CartItemRequest request) {
+
+        // 1. URL'den gelen cartId ile Cart'ı bul
         Cart cart = cartRepository
                 .findById(cartId)
                 .orElseThrow();
 
-        // 2. PSEUDOCODE:
-        // "Hangi ürünü sepete ekliyoruz?"
-        // Request'ten gelen productId ile DB'deki gerçek Product nesnesini buluyoruz.
+        // 2. Request içindeki productId ile Product'ı bul
         Product product = productRepository
                 .findById(request.productId())
                 .orElseThrow();
 
-        // 3. PSEUDOCODE:
-        // "Yeni bir sepet satırı oluştur."
-        // Henüz DB'ye kayıtlı değil, sadece Java nesnesi.
-        CartItem cartItem = new CartItem();
+        // 3. Bu cart + product için daha önce CartItem oluşturulmuş mu?
+        Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndProductId(
+                cartId,
+                request.productId());
 
-        // 4. PSEUDOCODE:
-        // requsetteki cart nesnesini cart itemdeki cart kısmına koy
+        CartItem cartItem;
 
-        cartItem.setCart(cart);
+        // 4. Varsa mevcut CartItem'ı kullan
+        if (existingItem.isPresent()) {
 
-        // 5. PSEUDOCODE:
-        // equesttekki product nesnesini cart itemdeki product kımına koy
-        cartItem.setProduct(product);
+            cartItem = existingItem.get();
 
-        // 6. PSEUDOCODE:
-        // "Bu üründen sepette kaç tane var?"
-        cartItem.setQuantity(request.quantity());
+            // // Mevcut quantity + request'ten gelen quantity
+            // cartItem.setQuantity(
+            // cartItem.getQuantity() + request.quantity()
+            // );
+            // Sepette zaten kaç tane var?
+            int currentQuantity = cartItem.getQuantity();
 
-        // 7. PSEUDOCODE:
-        // "Hazırladığımız CartItem'ı DB'ye kaydet."
+            // Kullanıcı kaç tane daha eklemek istiyor?
+            int requestedQuantity = request.quantity();
+
+            // Eklemeden sonraki toplam
+            int newQuantity = currentQuantity + requestedQuantity;
+
+            // Ürünün gerçek stok miktarı
+            int stock = product.getStock();
+
+            // Stok aşılırsa burada hata fırlatacağız
+
+            if (newQuantity > stock) {
+                throw new StockExceededException(product.getStock());
+            }
+
+            cartItem.setQuantity(newQuantity);
+
+        } else {
+
+            // Ürün sepette hiç yoksa,
+            // request quantity direkt stock ile karşılaştırılır.
+            if (request.quantity() > product.getStock()) {
+                throw new StockExceededException(product.getStock());
+            }
+
+            // 5. Yoksa yeni CartItem oluştur
+            cartItem = new CartItem();
+
+            cartItem.setCart(cart);
+            cartItem.setProduct(product);
+            cartItem.setQuantity(request.quantity());
+        }
+
+        // 6. Güncellenmiş veya yeni CartItem'ı kaydet
         CartItem savedCartItem = cartItemRepository.save(cartItem);
 
-        // 8. PSEUDOCODE:
-        // "Kaydedilmiş entity'yi API'ye dönecek response tipine çevir."
-        // return new CartItemResponse(
-        // savedCartItem.getId(),
-        // savedCartItem.getCart().getId(),
-        // savedCartItem.getProduct().getId(),
-        // savedCartItem.getProduct().getName(),
-        // savedCartItem.getQuantity(),
-        // savedCartItem.getProduct().getPrice()
-        // );
-        // 
-        //8. Kaydedilmiş entity'yi response'a çevir ve döndür.
+        // 7. Response'a çevir
         return CartItemMapper.toResponse(savedCartItem);
+    }
+
+    public CartItemResponse updateQuantity(
+            Long cartId,
+            Long itemId,
+            UpdateCartItemRequest request) {
+
+        CartItem cartItem = cartItemRepository
+                .findById(itemId)
+                .orElseThrow();
+
+        if (cartItem.getCart().getId() != cartId) {
+            throw new RuntimeException("CartItem bu sepete ait değil");
+        }
+
+        if (request.quantity() <= 0) {
+            throw new RuntimeException("Quantity 0'dan büyük olmalı");
+        }
+
+        Integer stock = cartItem
+                .getProduct()
+                .getStock();
+
+        if (request.quantity() > stock) {
+            throw new StockExceededException(stock);
+        }
+
+        cartItem.setQuantity(request.quantity());
+
+        CartItem savedCartItem = cartItemRepository.save(cartItem);
+
+        return CartItemMapper.toResponse(savedCartItem);
+    }
+
+    public void deleteCartItem(
+            Long cartId,
+            Long itemId) {
+
+        // 1. Silinecek CartItem'ı bul
+        CartItem cartItem = cartItemRepository
+                .findById(itemId)
+                .orElseThrow();
+
+        // 2. Bu CartItem gerçekten bu sepete mi ait?
+        if (cartItem.getCart().getId() != cartId) {
+            throw new RuntimeException("CartItem bu sepete ait değil");
+        }
+
+        // 3. DB'den sil
+        cartItemRepository.delete(cartItem);
     }
 }
